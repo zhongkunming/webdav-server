@@ -3,7 +3,8 @@ FROM golang:alpine AS webdav-builder
 WORKDIR /src
 COPY . .
 
-RUN apk add --no-cache git && \
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories && \
+    apk add --no-cache git && \
     go mod download && \
     CGO_ENABLED=0 go build -ldflags="-s -w" -o "webdav-server"
 
@@ -24,7 +25,8 @@ COPY --from=ossfs-builder /usr/local/bin/ossfs /usr/local/bin/ossfs
 COPY ./docker-entrypoint.sh docker-entrypoint.sh
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
-RUN apk --update add fuse curl libxml2 openssl libstdc++ libgcc && \
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories && \
+    apk --update add fuse curl libxml2 openssl libstdc++ libgcc && \
     rm -rf /var/cache/apk/*
 
 ENV BucketName=your-bucket-name
